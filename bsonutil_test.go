@@ -392,98 +392,113 @@ func TestBSONWalkAll6(test *testing.T) {
 	}
 }
 
-func BenchmarkSimpleBSONConvertEmptyDoc(b *testing.B) {
-	b.ReportAllocs()
-	doc := bson.D{}
-	for i := 0; i < b.N; i++ {
-		_, err := SimpleBSONConvert(doc)
-		if err != nil {
-			b.Error(err)
-		}
-	}
-}
-func BenchmarkSimpleBSONConvertSmallDoc(b *testing.B) {
-	b.ReportAllocs()
-	doc := bson.D{
-		{"ok", 1},
-	}
-	for i := 0; i < b.N; i++ {
-		_, err := SimpleBSONConvert(doc)
-		if err != nil {
-			b.Error(err)
-		}
-	}
+// func BenchmarkSimpleBSONConvertEmptyDoc(b *testing.B) {
+// 	b.ReportAllocs()
+// 	doc := bson.D{}
+// 	for i := 0; i < b.N; i++ {
+// 		_, err := SimpleBSONConvert(doc)
+// 		if err != nil {
+// 			b.Error(err)
+// 		}
+// 	}
+// }
+// func BenchmarkSimpleBSONConvertSmallDoc(b *testing.B) {
+// 	b.ReportAllocs()
+// 	doc := bson.D{
+// 		{"ok", 1},
+// 	}
+// 	for i := 0; i < b.N; i++ {
+// 		_, err := SimpleBSONConvert(doc)
+// 		if err != nil {
+// 			b.Error(err)
+// 		}
+// 	}
+// }
+
+func getStringElement(i int) (key, value string) {
+	return fmt.Sprintf("field%v", i), "blabla"
 }
 
 func getDocOfSize(n int) bson.D {
 	doc := bson.D{}
 	for i := 0; i < n; i++ {
-		doc = append(doc, bson.DocElem{fmt.Sprintf("field%v", i), "blabla"})
+		key, val := getStringElement(i)
+		doc = append(doc, bson.DocElem{key, val})
 	}
 	return doc
 }
 
-func BenchmarkSimpleBSONConvertLarge10Doc(b *testing.B) {
-	b.ReportAllocs()
-	doc := getDocOfSize(10)
-	for i := 0; i < b.N; i++ {
-		_, err := SimpleBSONConvert(doc)
-		if err != nil {
-			b.Error(err)
-		}
-	}
-}
+// func buildRawDoc(n int) bsoncore.Document {
+// 	idx, doc := bsoncore.AppendDocumentStart(nil)
+// 	for i := 0; i < n; i++ {
+// 		key, val := getStringElement(i)
+// 		doc = bsoncore.AppendStringElement(doc, key, val)
+// 	}
 
-func BenchmarkSimpleBSONConvertLarge50Doc(b *testing.B) {
-	b.ReportAllocs()
-	doc := getDocOfSize(50)
-	for i := 0; i < b.N; i++ {
-		_, err := SimpleBSONConvert(doc)
-		if err != nil {
-			b.Error(err)
-		}
-	}
-}
+// 	doc, _ = bsoncore.AppendDocumentEnd(doc, idx)
+// 	return doc
+// }
 
-func BenchmarkSimpleBSONConvertLarge100Doc(b *testing.B) {
-	b.ReportAllocs()
-	doc := getDocOfSize(100)
-	for i := 0; i < b.N; i++ {
-		_, err := SimpleBSONConvert(doc)
-		if err != nil {
-			b.Error(err)
-		}
-	}
-}
-func BenchmarkSimpleBSONConvertLarge500Doc(b *testing.B) {
-	b.ReportAllocs()
-	doc := getDocOfSize(500)
-	for i := 0; i < b.N; i++ {
-		_, err := SimpleBSONConvert(doc)
-		if err != nil {
-			b.Error(err)
-		}
-	}
-}
+// func BenchmarkSimpleBSONConvertLarge10Doc(b *testing.B) {
+// 	b.ReportAllocs()
+// 	doc := getDocOfSize(10)
+// 	for i := 0; i < b.N; i++ {
+// 		_, err := SimpleBSONConvert(doc)
+// 		if err != nil {
+// 			b.Error(err)
+// 		}
+// 	}
+// }
+// func BenchmarkSimpleBSONConvertLarge50Doc(b *testing.B) {
+// 	b.ReportAllocs()
+// 	doc := getDocOfSize(50)
+// 	for i := 0; i < b.N; i++ {
+// 		_, err := SimpleBSONConvert(doc)
+// 		if err != nil {
+// 			b.Error(err)
+// 		}
+// 	}
+// }
+// func BenchmarkSimpleBSONConvertLarge100Doc(b *testing.B) {
+// 	b.ReportAllocs()
+// 	doc := getDocOfSize(100)
+// 	for i := 0; i < b.N; i++ {
+// 		_, err := SimpleBSONConvert(doc)
+// 		if err != nil {
+// 			b.Error(err)
+// 		}
+// 	}
+// }
+// func BenchmarkSimpleBSONConvertLarge500Doc(b *testing.B) {
+// 	b.ReportAllocs()
+// 	doc := getDocOfSize(500)
+// 	for i := 0; i < b.N; i++ {
+// 		_, err := SimpleBSONConvert(doc)
+// 		if err != nil {
+// 			b.Error(err)
+// 		}
+// 	}
+// }
 
-func BenchmarkSimpleBSONConvertLarge1000Doc(b *testing.B) {
-	b.ReportAllocs()
-	doc := getDocOfSize(1000)
-	for i := 0; i < b.N; i++ {
-		_, err := SimpleBSONConvert(doc)
-		if err != nil {
-			b.Error(err)
-		}
-	}
-}
+// func BenchmarkSimpleBSONConvertLarge1000Doc(b *testing.B) {
+// 	b.ReportAllocs()
+// 	doc := getDocOfSize(1000)
+// 	for i := 0; i < b.N; i++ {
+// 		_, err := SimpleBSONConvert(doc)
+// 		if err != nil {
+// 			b.Error(err)
+// 		}
+// 	}
+// }
 
 func BenchmarkToBSONEmpty(b *testing.B) {
-	b.ReportAllocs()
 	doc := bson.D{}
 	simple, err := SimpleBSONConvert(doc)
 	if err != nil {
 		b.Error(err)
 	}
+
+	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		_, err := simple.ToBSOND()
 		if err != nil {
@@ -492,7 +507,6 @@ func BenchmarkToBSONEmpty(b *testing.B) {
 	}
 }
 func BenchmarkToBSONSmall(b *testing.B) {
-	b.ReportAllocs()
 	doc := bson.D{
 		{"ok", 1},
 	}
@@ -500,6 +514,8 @@ func BenchmarkToBSONSmall(b *testing.B) {
 	if err != nil {
 		b.Error(err)
 	}
+
+	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		_, err := simple.ToBSOND()
 		if err != nil {
@@ -508,12 +524,13 @@ func BenchmarkToBSONSmall(b *testing.B) {
 	}
 }
 func BenchmarkToBSONLarge10(b *testing.B) {
-	b.ReportAllocs()
 	doc := getDocOfSize(10)
 	simple, err := SimpleBSONConvert(doc)
 	if err != nil {
 		b.Error(err)
 	}
+
+	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		_, err := simple.ToBSOND()
 		if err != nil {
@@ -522,12 +539,13 @@ func BenchmarkToBSONLarge10(b *testing.B) {
 	}
 }
 func BenchmarkToBSONLarge50(b *testing.B) {
-	b.ReportAllocs()
 	doc := getDocOfSize(50)
 	simple, err := SimpleBSONConvert(doc)
 	if err != nil {
 		b.Error(err)
 	}
+
+	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		_, err := simple.ToBSOND()
 		if err != nil {
@@ -536,12 +554,13 @@ func BenchmarkToBSONLarge50(b *testing.B) {
 	}
 }
 func BenchmarkToBSONLarge100(b *testing.B) {
-	b.ReportAllocs()
 	doc := getDocOfSize(100)
 	simple, err := SimpleBSONConvert(doc)
 	if err != nil {
 		b.Error(err)
 	}
+
+	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		_, err := simple.ToBSOND()
 		if err != nil {
@@ -550,12 +569,13 @@ func BenchmarkToBSONLarge100(b *testing.B) {
 	}
 }
 func BenchmarkToBSONLarge500(b *testing.B) {
-	b.ReportAllocs()
 	doc := getDocOfSize(500)
 	simple, err := SimpleBSONConvert(doc)
 	if err != nil {
 		b.Error(err)
 	}
+
+	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		_, err := simple.ToBSOND()
 		if err != nil {
@@ -564,12 +584,13 @@ func BenchmarkToBSONLarge500(b *testing.B) {
 	}
 }
 func BenchmarkToBSONLarge1000(b *testing.B) {
-	b.ReportAllocs()
 	doc := getDocOfSize(1000)
 	simple, err := SimpleBSONConvert(doc)
 	if err != nil {
 		b.Error(err)
 	}
+
+	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		_, err := simple.ToBSOND()
 		if err != nil {
