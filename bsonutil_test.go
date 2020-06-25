@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"go.mongodb.org/mongo-driver/x/bsonx/bsoncore"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -428,16 +429,16 @@ func getDocOfSize(n int) bson.D {
 	return doc
 }
 
-// func buildRawDoc(n int) bsoncore.Document {
-// 	idx, doc := bsoncore.AppendDocumentStart(nil)
-// 	for i := 0; i < n; i++ {
-// 		key, val := getStringElement(i)
-// 		doc = bsoncore.AppendStringElement(doc, key, val)
-// 	}
+func buildRawDoc(n int) bsoncore.Document {
+	idx, doc := bsoncore.AppendDocumentStart(nil)
+	for i := 0; i < n; i++ {
+		key, val := getStringElement(i)
+		doc = bsoncore.AppendStringElement(doc, key, val)
+	}
 
-// 	doc, _ = bsoncore.AppendDocumentEnd(doc, idx)
-// 	return doc
-// }
+	doc, _ = bsoncore.AppendDocumentEnd(doc, idx)
+	return doc
+}
 
 // func BenchmarkSimpleBSONConvertLarge10Doc(b *testing.B) {
 // 	b.ReportAllocs()
@@ -492,107 +493,84 @@ func getDocOfSize(n int) bson.D {
 // }
 
 func BenchmarkToBSONEmpty(b *testing.B) {
-	doc := bson.D{}
-	simple, err := SimpleBSONConvert(doc)
-	if err != nil {
-		b.Error(err)
-	}
+	doc := buildRawDoc(0)
 
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
-		_, err := simple.ToBSOND()
+		var newDoc bson.D
+		err := bson.Unmarshal(doc, &newDoc)
 		if err != nil {
 			b.Error(err)
 		}
 	}
 }
 func BenchmarkToBSONSmall(b *testing.B) {
-	doc := bson.D{
-		{"ok", 1},
-	}
-	simple, err := SimpleBSONConvert(doc)
-	if err != nil {
-		b.Error(err)
-	}
+	doc := buildRawDoc(1)
 
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
-		_, err := simple.ToBSOND()
+		var newDoc bson.D
+		err := bson.Unmarshal(doc, &newDoc)
 		if err != nil {
 			b.Error(err)
 		}
 	}
 }
 func BenchmarkToBSONLarge10(b *testing.B) {
-	doc := getDocOfSize(10)
-	simple, err := SimpleBSONConvert(doc)
-	if err != nil {
-		b.Error(err)
-	}
+	doc := buildRawDoc(10)
 
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
-		_, err := simple.ToBSOND()
+		var newDoc bson.D
+		err := bson.Unmarshal(doc, &newDoc)
 		if err != nil {
 			b.Error(err)
 		}
 	}
 }
 func BenchmarkToBSONLarge50(b *testing.B) {
-	doc := getDocOfSize(50)
-	simple, err := SimpleBSONConvert(doc)
-	if err != nil {
-		b.Error(err)
-	}
+	doc := buildRawDoc(50)
 
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
-		_, err := simple.ToBSOND()
+		var newDoc bson.D
+		err := bson.Unmarshal(doc, &newDoc)
 		if err != nil {
 			b.Error(err)
 		}
 	}
 }
 func BenchmarkToBSONLarge100(b *testing.B) {
-	doc := getDocOfSize(100)
-	simple, err := SimpleBSONConvert(doc)
-	if err != nil {
-		b.Error(err)
-	}
+	doc := buildRawDoc(100)
 
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
-		_, err := simple.ToBSOND()
+		var newDoc bson.D
+		err := bson.Unmarshal(doc, &newDoc)
 		if err != nil {
 			b.Error(err)
 		}
 	}
 }
 func BenchmarkToBSONLarge500(b *testing.B) {
-	doc := getDocOfSize(500)
-	simple, err := SimpleBSONConvert(doc)
-	if err != nil {
-		b.Error(err)
-	}
+	doc := buildRawDoc(500)
 
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
-		_, err := simple.ToBSOND()
+		var newDoc bson.D
+		err := bson.Unmarshal(doc, &newDoc)
 		if err != nil {
 			b.Error(err)
 		}
 	}
 }
 func BenchmarkToBSONLarge1000(b *testing.B) {
-	doc := getDocOfSize(1000)
-	simple, err := SimpleBSONConvert(doc)
-	if err != nil {
-		b.Error(err)
-	}
+	doc := buildRawDoc(1000)
 
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
-		_, err := simple.ToBSOND()
+		var newDoc bson.D
+		err := bson.Unmarshal(doc, &newDoc)
 		if err != nil {
 			b.Error(err)
 		}
