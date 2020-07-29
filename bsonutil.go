@@ -2,10 +2,18 @@ package mongonet
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/x/bsonx"
+)
+
+var (
+	bsonRegistry = bson.NewRegistryBuilder().
+		RegisterCodec(reflect.TypeOf(primitive.D{}), bsonx.ReflectionFreeDCodec).
+		Build()
 )
 
 type SimpleBSON struct {
@@ -13,7 +21,7 @@ type SimpleBSON struct {
 	BSON []byte
 }
 
-func SimpleBSONConvert(d interface{}) (SimpleBSON, error) {
+func OldSimpleBSONConvert(d interface{}) (SimpleBSON, error) {
 	raw, err := bson.Marshal(d)
 	if err != nil {
 		return SimpleBSON{}, err
@@ -21,8 +29,30 @@ func SimpleBSONConvert(d interface{}) (SimpleBSON, error) {
 	return SimpleBSON{int32(len(raw)), raw}, nil
 }
 
-func SimpleBSONConvertOrPanic(d interface{}) SimpleBSON {
+func OldSimpleBSONConvertOrPanic(d interface{}) SimpleBSON {
 	raw, err := bson.Marshal(d)
+	if err != nil {
+		panic(err)
+	}
+	return SimpleBSON{int32(len(raw)), raw}
+}
+
+func (sb SimpleBSON) OldToBSOND() (bson.D, error) {
+	t := bson.D{}
+	err := bson.Unmarshal(sb.BSON, &t)
+	return t, err
+}
+
+func SimpleBSONConvert(d interface{}) (SimpleBSON, error) {
+	raw, err := bson.MarshalWithRegistry(bsonRegistry, d)
+	if err != nil {
+		return SimpleBSON{}, err
+	}
+	return SimpleBSON{int32(len(raw)), raw}, nil
+}
+
+func SimpleBSONConvertOrPanic(d interface{}) SimpleBSON {
+	raw, err := bson.MarshalWithRegistry(bsonRegistry, d)
 	if err != nil {
 		panic(err)
 	}
@@ -31,7 +61,7 @@ func SimpleBSONConvertOrPanic(d interface{}) SimpleBSON {
 
 func (sb SimpleBSON) ToBSOND() (bson.D, error) {
 	t := bson.D{}
-	err := bson.Unmarshal(sb.BSON, &t)
+	err := bson.UnmarshalWithRegistry(bsonRegistry, sb.BSON, &t)
 	return t, err
 }
 
@@ -163,8 +193,8 @@ var DELETE_ME = fmt.Errorf("delete_me")
 
 type BSONWalkVisitor interface {
 	/**
-	change value
-	set Name = "" to delete
+	  change value
+	  set Name = "" to delete
 	*/
 	Visit(elem *bson.E) error
 }
